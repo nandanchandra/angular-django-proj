@@ -1,0 +1,51 @@
+version: "3"
+services:
+  angularproject:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+    container_name: angular-project
+    volumes:
+      - ./client:/usr/src/app
+      - /usr/src/app/app-ui/node_modules
+    networks:
+      - angular-django
+
+  djangobackend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: djangobackend
+    command: >
+      sh -c  "python manage.py migrate --noinput &&
+              python manage.py collectstatic --noinput &&
+              python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./backend:/app
+    restart: "on-failure"
+    depends_on:
+      - angularproject
+    networks:
+      - angular-django
+
+  nginx:
+    restart: always
+    depends_on:
+      - djangobackend
+    volumes:
+      - ./staticfiles:/app/staticfiles
+      - ./mediafiles:/app/mediafiles
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - 8000:80
+
+    networks:
+      - angular-django
+
+networks:
+  angular-django:
+    driver: bridge
