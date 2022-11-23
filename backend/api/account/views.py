@@ -27,7 +27,7 @@ class CreateUserView(APIView):
             return Response(serializer.errors,status=status.HTTP_403_FORBIDDEN)
         except Exception as e :
             logger.info(e)
-            return Response({"message":"Something Went Wrong"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error":"USER_EXITS"},status=status.HTTP_400_BAD_REQUEST)
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer

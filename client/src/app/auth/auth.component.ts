@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { AuthService } from './auth.service';
+import { AuthService, LoginResponseData } from './auth.service';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-auth',
@@ -9,12 +10,15 @@ import { Router } from '@angular/router';
 })
 export class AuthComponent {
   isLogin = true;
+  isLoding = false;
+  error = null;
 
   constructor(private authService: AuthService, private router: Router) {}
 
   onSwitch() {
     this.isLogin = !this.isLogin;
   }
+
   onSubmit(form: NgForm) {
     if (!form.valid) {
       return;
@@ -22,13 +26,19 @@ export class AuthComponent {
     console.log(form.value);
     const email = form.value.email;
     const password = form.value.password;
+
+    let authObs: Observable<LoginResponseData>;
+
+    this.isLoding = true;
     this.authService.signup(email, password).subscribe({
       next: (resData) => {
-        console.log(resData);
         this.router.navigate(['']);
+        this.isLoding = false;
       },
-      error: (error) => {
-        console.log(error);
+      error: (errRes) => {
+        this.isLoding = false;
+        this.error = errRes;
+        console.log(errRes);
       },
     });
     form.reset();
