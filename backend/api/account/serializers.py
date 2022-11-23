@@ -9,8 +9,8 @@ class CreateUserSerializer(ModelSerializer):
     
     class Meta:
         model = User
-        extra_kwargs = {'password': {'write_only': True,'read_only': False}}
-        fields = ["email","password"]
+        extra_kwargs = {'password': {'write_only': True}}
+        fields = ["id","email","password"]
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):

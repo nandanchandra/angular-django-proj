@@ -21,13 +21,13 @@ class CreateUserView(APIView):
                 user = User.objects.create(email=serializer.data['email'])
                 user.set_password(serializer.data['password'])
                 user.save()
-                return Response(serializer.data,status=status.HTTP_201_CREATED)
+                return Response({"message":"User Created Successfully"},status=status.HTTP_201_CREATED)
         except IntegrityError as Interror :
             logger.info(Interror)
             return Response(serializer.errors,status=status.HTTP_403_FORBIDDEN)
         except Exception as e :
-            logger.info(Interror)
-            return Response({"message":"Something Went Wrong"},status=status.HTTP_404_NOT_FOUND)
+            logger.info(e)
+            return Response({"message":"Something Went Wrong"},status=status.HTTP_400_BAD_REQUEST)
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
