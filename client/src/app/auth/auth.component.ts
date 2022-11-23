@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { AuthService } from './auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-auth',
@@ -9,7 +10,7 @@ import { AuthService } from './auth.service';
 export class AuthComponent {
   isLogin = true;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   onSwitch() {
     this.isLogin = !this.isLogin;
@@ -24,6 +25,7 @@ export class AuthComponent {
     this.authService.signup(email, password).subscribe({
       next: (resData) => {
         console.log(resData);
+        this.router.navigate(['']);
       },
       error: (error) => {
         console.log(error);
