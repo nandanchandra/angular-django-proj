@@ -1,9 +1,11 @@
+import environ
 from pathlib import Path
 from datetime import timedelta
+
+env = environ.Env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+APPS_DIR = ROOT_DIR / "api"
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -11,9 +13,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-cnk1obvxe2f6d0!n_d)cktxsa$30h$a01r*8h_o@v^z!+u9xp^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DJANGO_DEBUG", True)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -75,12 +77,15 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+DATABASES = {"default": env.db("DATABASE_URL")}
+DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
 
 # Password validation
@@ -120,11 +125,11 @@ SITE_ID = 1
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "/staticfiles/"
-STATIC_ROOT = str(BASE_DIR / "staticfiles")
+STATIC_ROOT = str(ROOT_DIR / "staticfiles")
 STATICFILES_DIRS = []
 
 MEDIA_URL = "/mediafiles/"
-MEDIA_ROOT = str(BASE_DIR / "mediafiles")
+MEDIA_ROOT = str(ROOT_DIR / "mediafiles")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -132,6 +137,8 @@ MEDIA_ROOT = str(BASE_DIR / "mediafiles")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "account.User"
+
+CORS_URLS_REGEX = r"^/api/.*$"
 
 REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "api.utils.exception_handler.custom_exception_handler", # To Handle Exceptions raised by serilizers
@@ -151,6 +158,20 @@ SIMPLE_JWT = {
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
+
+CELERY_BROKER_URL = env("CELERY_BROKER")
+CELERY_RESULT_BACKEND = env("CELERY_BACKEND")
+CELERY_TIMEZONE = "Asia/Calcutta"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+EMAIL_BACKEND = "djcelery_email.backends.CeleryEmailBackend"
+EMAIL_HOST = env("EMAIL_HOST", default="mailhog")
+EMAIL_PORT = env("EMAIL_PORT")
+DEFAULT_FROM_EMAIL = "chandranandan.chandrakar@gmail.com"
+DOMAIN = env("DOMAIN")
+SITE_NAME = "Angular Django"
 
 LOGGING = {
     "version": 1,

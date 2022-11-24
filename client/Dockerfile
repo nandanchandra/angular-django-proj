@@ -2,7 +2,7 @@ FROM node:latest
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY package.json ./
 
 RUN npm install -g @angular/cli @angular-devkit/build-angular && npm install
 

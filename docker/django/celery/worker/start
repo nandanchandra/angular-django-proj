@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+
+watchmedo auto-restart -d backend/ -p '*.py' -- celery -A backend worker --loglevel=info

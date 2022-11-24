@@ -1,26 +1,26 @@
 build:
-	docker compose -f local.yml up --build -d --remove-orphans
+	docker compose -f docker-compose.yml up --build -d --remove-orphans
 
 up:
-	docker compose -f local.yml up -d
+	docker compose -f docker-compose.yml up -d
 
 down:
-	docker compose -f local.yml down
+	docker compose -f docker-compose.yml down
 
 show_logs:
-	docker compose -f local.yml logs
+	docker compose -f docker-compose.yml logs
 
 migrate:
-	docker compose -f local.yml run --rm api python3 manage.py migrate
+	docker compose -f docker-compose.yml run --rm api python3 manage.py migrate
 
 makemigrations:
-	docker compose -f local.yml run --rm api python3 manage.py makemigrations
+	docker compose -f docker-compose.yml run --rm api python3 manage.py makemigrations
 
 collectstatic:
-	docker compose -f local.yml run --rm api python3 manage.py collectstatic --no-input --clear
+	docker compose -f docker-compose.yml run --rm api python3 manage.py collectstatic --no-input --clear
 
 superuser:
-	docker compose -f local.yml run --rm api python3 manage.py createsuperuser
+	docker compose -f docker-compose.yml run --rm api python3 manage.py createsuperuser
 
 down-v:
-	docker compose -f local.yml down -v
+	docker compose -f docker-compose.yml down -v

@@ -15,18 +15,87 @@ services:
 
   djangobackend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./docker/django/Dockerfile
+    command: /start
     container_name: djangobackend
-    command: >
-      sh -c  "python manage.py migrate --noinput &&
-              python manage.py collectstatic --noinput &&
-              python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./backend:/app
-    restart: "on-failure"
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/mediafiles
+    env_file:
+      - ./.envs/.django
+      - ./.envs/.postgres
     depends_on:
-      - angularproject
+      - postgres
+      - mailhog
+      - redis
+    restart: "on-failure"
+    networks:
+      - angular-django
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./docker/postgres/Dockerfile
+    container_name: postgres
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+      - local_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.postgres
+    networks:
+      - angular-django
+
+  flower:
+    build:
+      context: .
+      dockerfile: ./docker/django/Dockerfile
+    command: /start-flower
+    container_name: flower
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.django
+      - ./.envs/.postgres
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - postgres
+      - celery_worker
+    networks:
+      - angular-django
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.0
+    container_name: mailhog
+    ports:
+      - "8025:8025"
+    networks:
+      - angular-django
+
+  redis:
+    image: redis:6-alpine
+    container_name: redis
+    networks:
+      - angular-django
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: ./docker/django/Dockerfile
+    command: /start-celeryworker
+    container_name: celery_worker
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.django
+      - ./.envs/.postgres
+    depends_on:
+      - redis
+      - postgres
+      - mailhog
     networks:
       - angular-django
 
@@ -38,7 +107,7 @@ services:
       - ./staticfiles:/app/staticfiles
       - ./mediafiles:/app/mediafiles
     build:
-      context: ./nginx
+      context: ./docker/nginx
       dockerfile: Dockerfile
     ports:
       - 8000:80
@@ -49,3 +118,9 @@ services:
 networks:
   angular-django:
     driver: bridge
+
+volumes:
+  local_postgres_data: {}
+  local_postgres_data_backups: {}
+  static_volume:
+  media_volume:
