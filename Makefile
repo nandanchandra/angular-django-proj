@@ -11,16 +11,16 @@ show_logs:
 	docker compose -f docker-compose.yml logs
 
 migrate:
-	docker compose -f docker-compose.yml run --rm api python3 manage.py migrate
+	docker compose -f docker-compose.yml run --rm djangobackend python3 manage.py migrate
 
 makemigrations:
-	docker compose -f docker-compose.yml run --rm api python3 manage.py makemigrations
+	docker compose -f docker-compose.yml run --rm djangobackend python3 manage.py makemigrations
 
 collectstatic:
-	docker compose -f docker-compose.yml run --rm api python3 manage.py collectstatic --no-input --clear
+	docker compose -f docker-compose.yml run --rm djangobackend python3 manage.py collectstatic --no-input --clear
 
 superuser:
-	docker compose -f docker-compose.yml run --rm api python3 manage.py createsuperuser
+	docker compose -f docker-compose.yml run --rm djangobackend python3 manage.py createsuperuser
 
 down-v:
 	docker compose -f docker-compose.yml down -v
