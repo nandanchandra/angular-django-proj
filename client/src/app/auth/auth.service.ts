@@ -8,7 +8,8 @@ export interface AuthResponseData {
 }
 
 export interface LoginResponseData {
-  message: string;
+  access: string;
+  refresh:string
 }
 
 @Injectable({ providedIn: 'root' })

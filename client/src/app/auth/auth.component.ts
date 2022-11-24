@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { AuthService, LoginResponseData } from './auth.service';
+import { AuthService, LoginResponseData, AuthResponseData } from './auth.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
@@ -13,7 +13,7 @@ export class AuthComponent {
   isLoding = false;
   error = null;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) { }
 
   onSwitch() {
     this.isLogin = !this.isLogin;
@@ -23,24 +23,42 @@ export class AuthComponent {
     if (!form.valid) {
       return;
     }
-    console.log(form.value);
     const email = form.value.email;
     const password = form.value.password;
 
-    let authObs: Observable<LoginResponseData>;
-
     this.isLoding = true;
-    this.authService.signup(email, password).subscribe({
-      next: (resData) => {
-        this.router.navigate(['']);
-        this.isLoding = false;
-      },
-      error: (errRes) => {
-        this.isLoding = false;
-        this.error = errRes;
-        console.log(errRes);
-      },
-    });
+
+    if (this.isLogin) {
+      let authObs: Observable<LoginResponseData>
+      authObs = this.authService.login(email, password);
+      authObs.subscribe({
+        next: (resData) => {
+          this.isLoding = false;
+          localStorage.setItem('accessToken', resData.access);
+          localStorage.setItem('refreshToken', resData.refresh);
+          this.router.navigate(['/home']);
+        },
+        error: (errRes) => {
+          this.isLoding = false;
+          this.error = errRes;
+        },
+      });
+    } else {
+      let authObs: Observable<AuthResponseData>
+      authObs = this.authService.signup(email, password);
+      authObs.subscribe({
+        next: (resData) => {
+          console.log(resData);
+          this.isLoding = false;
+        },
+        error: (errRes) => {
+          this.isLoding = false;
+          this.error = errRes;
+        },
+      });
+    }
+
+
     form.reset();
   }
 }
